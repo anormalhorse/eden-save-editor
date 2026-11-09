@@ -40,7 +40,7 @@
 </p>
 
 > [!WARNING]
-> **Unofficial.** Not affiliated with Nintendo, the Eden project or any game publisher. This tool contains **no games, no firmware, no keys, no decryption and no data taken from game files**. It is meant only for saves and dumps you created yourself from games you legally own. It is **not** meant for, and gives no help with, pirated copies.
+> **Unofficial.** Not affiliated with Nintendo, the Eden project or any game publisher. This tool contains **no games, no firmware, no keys, no decryption and no game assets, code or text**. It is meant only for saves and dumps you created yourself from games you legally own. It is **not** meant for, and gives no help with, pirated copies.
 
 ---
 
@@ -262,7 +262,8 @@ The program also tells you by itself when GitHub has entries you are missing (a 
 <br>
 
 - Only entry labels (short descriptions written by the author, e.g. "Coins"), key/offset numbers and value types.
-- **No list of hash names**, no text or names extracted from game files, no game data, no save files, no encryption keys, no copyrighted content.
+- The key numbers are hashes (plain numbers) that were found by analysing save files; the game computes them from its internal names. They are listed only so the editor can locate values in a save.
+- **No list of names**, no text, assets or code extracted from game files, no save files, no encryption keys, no copyrighted content.
 - Your `hash_names.json` is a different file: it is built on your PC from your own dump and is never part of the project.
 
 </details>
@@ -689,9 +690,9 @@ The automatic update reads the **latest published release** (drafts and pre-rele
 > Editing saves can corrupt them. Provided "as is", without warranty: use it at your own risk and keep
 > your own backups.
 
-- The tool and the optional `saved_fields.json` contain **no game data, no encryption
+- The tool and the optional `saved_fields.json` contain **no game assets, code or text, no encryption
   keys, no firmware and no copyrighted content**, and nothing here bypasses any
-  protection or encryption. The optional file only lists short labels written by the author, key numbers and positions.
+  protection or encryption. The optional file only lists short labels written by the author, key numbers (hashes that the game derives from its internal names, found by analysing saves) and positions.
 - The project **does not publish, host or distribute** any list of names extracted from game files. Names found with
   `Find names for the open save`, `Load names list...` or the NUP search are generated **on your computer** from
   **your own** dump and stay there (`hash_names.json`).

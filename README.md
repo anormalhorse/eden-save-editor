@@ -22,7 +22,9 @@
   <a href="#download">Download</a> ·
   <a href="#quick-start">Quick start</a> ·
   <a href="#features">Features</a> ·
-  <a href="#requirements">Requirements</a> ·
+  <a href="#requirements">Requirements</a>
+</p>
+<p align="center">
   <a href="#optional-ready-made-entries-saved_fieldsjson">Ready-made entries</a> ·
   <a href="#which-tutorial-should-i-follow">Tutorials</a> ·
   <a href="#game-specific-tips">Game tips</a> ·

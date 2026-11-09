@@ -23,7 +23,7 @@ Finding EVERYTHING in a save (inventory, quest/story flags...):
 
 Updates: at every startup (and with the "Updates" button) the program looks for a newer release on
 GitHub. A newer version is mandatory: it is downloaded and installed by itself, then the program restarts.
-It also checks the project's JSON files (hash names, saved fields): if GitHub has items you miss, a bar
+It also checks the project's saved_fields.json: if GitHub has entries you miss, a bar
 suggests adding them (all at once or reviewing them first). Nothing of yours is ever removed. The previous version is kept in the
 "program_backups" folder inside the data folder.
 """
@@ -45,7 +45,7 @@ import webbrowser
 import zlib
 from collections import Counter
 
-APP_VERSION = "1.2.0"
+APP_VERSION = "1.2.1"
 BASE = os.path.dirname(os.path.abspath(__file__))  # where the program is (icon, assets)
 
 
@@ -959,8 +959,9 @@ def save_names_db(db):
 # names  = hash_names.json   : {title: {"algo": "...", "map": {KEYHEX: name}}}
 # fields = saved_fields.json : {title: {save file name: {label: {"kind": ..., "hash": ...}}}}
 JSON_KINDS = {
-    "names": {"label": "Hash names", "file": NAMES_FILE, "depth": 3, "remote": "hash_names.json",
-              "help": "The names found for the keys of each game (the ones 'Find names' and 'Add by name' save)."},
+    "names": {"label": "Hash names", "file": NAMES_FILE, "depth": 3,
+              "help": "The names found for the keys of each game (the ones 'Find names' and 'Add by name' save). "
+                      "Built on your own computer from your own game dumps: it is not downloaded from GitHub."},
     "fields": {"label": "Saved fields", "file": FIELDS_FILE, "depth": 3, "remote": "saved_fields.json",
                "help": "The entries of the main list (label, type, key) that you created for each save file."},
 }
@@ -1969,6 +1970,8 @@ def export_file(arch, fi, target):
 
 
 DEFAULT_TEMPLATES = ["{}"]
+# Example shapes for Ocarina of Time Remake (button "Example (Ocarina of Time)" in the Find names tab)
+OOT_EXAMPLE_SHAPES = "{};PlayerStatus.{};PouchData.{}.StockNum;IsGet.{};BottleA.{};BottleB.{};BottleC.{};BottleD.{};BottleE.{};HavePlayedEvent.{};IsVisitLocation.{};HaveTalked.{};HavePlayedNaviBalloonMessage.{};DungeonInfo.{}.IsGetCompass;DungeonInfo.{}.IsGetBossKey;HaveTalked_Special.{};DungeonInfo.{}"
 
 
 def learn_templates(names):
@@ -2753,16 +2756,71 @@ def open_nup_browser(root, tk, ttk, filedialog, messagebox, initial_dir, resolve
     def stamp():
         return time.strftime("%H:%M:%S")
 
+    def names_help():
+        """Small window that explains how the hash names are built, with the Ocarina of Time example."""
+        d = tk.Toplevel(w)
+        d.title("How to build the hash names")
+        d.transient(w)
+        body = (
+            "HOW TO BUILD THE HASH NAMES\n\n"
+            "A save file stores every value under a number (the key). That number is a hash of a name, and a hash "
+            "cannot be reversed. So the program does the opposite: it takes the words found in the game files, builds "
+            "possible names and checks which ones give a key of your save.\n\n"
+            "Everything happens on your computer, with a game dump that you made yourself. The names found are saved in "
+            "hash_names.json (in your data folder) and are never uploaded or downloaded.\n\n"
+            "STEPS\n"
+            "1. In the main window open your save (Open file...).\n"
+            "2. Click 'Game archive / folder...' and open the .nup file or the folder of your own game dump.\n"
+            "3. Go to the tab 'Find names for the open save'. It shows how many keys still have no name.\n"
+            "4. Fill in the name shapes (box at the top), separated by ;  The symbol {} stands for each word found in "
+            "the game files:\n"
+            "     IsGet.{}  tries  IsGet.Item_Hookshot\n"
+            "     PouchData.{}.StockNum  tries  PouchData.Item_DekuStick.StockNum\n"
+            "   When some names of the game are already known the program suggests the shapes by itself. For a new game "
+            "it starts with just {}: use 'Add by name' on a few entries, with their full names, to teach it the shapes, "
+            "or type them yourself.\n"
+            "5. Optional: limit the files read ('Only read files whose path contains', for example /event/;/message/) "
+            "to get fewer false names. Textures, models, effects and audio are skipped by default.\n"
+            "6. Press Start. Every name found appears in the log and is saved as soon as it is found.\n"
+            "7. In the main window the names appear in 'All values' and 'Compare saves'.\n\n"
+            "EXAMPLE: OCARINA OF TIME REMAKE\n"
+            "Press 'Example (Ocarina of Time)' to fill the box with these shapes:\n\n"
+            + OOT_EXAMPLE_SHAPES.replace(";", ";  ") + "\n\n"
+            "TIPS\n"
+            "- Nothing found? The game probably uses another shape: look at the names you already know and copy their "
+            "pattern.\n"
+            "- Random names (like BottleA.wwgD)? The search is reading binary files: keep the default skip filter or use "
+            "'Only read files whose path contains'.\n"
+            "- Keys that already have a name are skipped and never overwritten.\n"
+            "- To use the names on another PC: 'JSON data...' -> Hash names -> Export... / Merge...\n")
+        t = tk.Text(d, wrap="word", width=96, height=30, borderwidth=0, padx=12, pady=10)
+        sb = ttk.Scrollbar(d, orient="vertical", command=t.yview)
+        t.configure(yscrollcommand=sb.set)
+        _recolor_tk(t, pal())
+        t.insert("1.0", body)
+        t.configure(state="disabled")
+        bt = ttk.Frame(d)
+        bt.pack(side="bottom", fill="x", padx=12, pady=(0, 10))
+        ttk.Button(bt, text="Use the Ocarina of Time example", command=lambda: (shapes.set(OOT_EXAMPLE_SHAPES), d.destroy())
+                   ).pack(side="left")
+        ttk.Button(bt, text="Close", command=d.destroy).pack(side="right")
+        sb.pack(side="right", fill="y")
+        t.pack(side="left", fill="both", expand=True)
+        autofit(d, 760, 560)
+
     ttk.Label(t3, textvariable=f_info, wraplength=880, justify="left").pack(fill="x", padx=8, pady=(8, 2))
     g1 = ttk.Frame(t3)
     g1.pack(fill="x", padx=8, pady=(4, 0))
     ttk.Label(g1, text="Name shapes to try, separated by ;").pack(side="left")
     ttk.Label(g1, text="   {} = each word found in the game files, e.g.  IsGet.{}  ->  IsGet.Item_Hookshot").pack(
         side="left")
+    ttk.Button(g1, text="How does it work?", command=names_help).pack(side="right")
     g2 = ttk.Frame(t3)
     g2.pack(fill="x", padx=8, pady=4)
     ttk.Entry(g2, textvariable=shapes).pack(side="left", fill="x", expand=True)
     ttk.Button(g2, text="Reset shapes", command=lambda: refresh_find(True)).pack(side="left", padx=(6, 0))
+    ttk.Button(g2, text="Example (Ocarina of Time)", command=lambda: shapes.set(OOT_EXAMPLE_SHAPES)
+               ).pack(side="left", padx=(6, 0))
     DEFAULT_EXCLUDE = "/tex/;/model/;/effect/;.bntx;.bfres;/terrainarc/;.extm;.hght;.bake;.bfsha;.bnsh;.bfstm;.bwav;.bars;.webm;/movie/"
     inc_var, exc_var = tk.StringVar(), tk.StringVar(value=DEFAULT_EXCLUDE)
     h1 = ttk.Frame(t3)
@@ -3378,6 +3436,8 @@ def gui():
         def work():
             got, errs = {}, []
             for k, spec in JSON_KINDS.items():
+                if not spec.get("remote"):  # only the files published on GitHub (not hash_names.json)
+                    continue
                 try:
                     obj = fetch_remote_json(spec["remote"])
                     err = json_validate(k, obj)
@@ -4860,10 +4920,10 @@ def gui():
         w.title("Import / export / merge data files")
         w.transient(root)
         ttk.Label(w, wraplength=560, justify="left",
-                  text="Share your data files, move them to another PC or get the latest ones from GitHub.\n"
+                  text="Share your data files, move them to another PC or get the project's ready-made saved fields from GitHub.\n"
                        "Export = save a copy.  Merge = look at the differences with another file and add only what "
                        "you are missing (yours is never overwritten).  Import = replace yours with the file.  "
-                       "Update from GitHub = download the project's file and choose between merging and replacing."
+                       "Update from GitHub (Saved fields only) = download the project's file and choose between merging and replacing."
                   ).pack(anchor="w", padx=14, pady=(12, 4))
         gh_btns = []
         lbl = None  # created below, inside the bottom bar
@@ -4882,25 +4942,18 @@ def gui():
                        command=lambda k=kind: json_merge(k, w)).pack(side="left", padx=6)
             ttk.Button(b, text="Import (replace)...", style="Danger.TButton",
                        command=lambda k=kind: json_import(k, w)).pack(side="left")
-            gb = ttk.Button(b, text="Update from GitHub...",
-                            command=lambda k=kind: json_github([k], w, lbl, gh_btns))
-            gb.pack(side="right")
-            gh_btns.append(gb)
-            ib = ttk.Button(b, text="Import from GitHub", style="Danger.TButton",
-                            command=lambda k=kind: json_github([k], w, lbl, gh_btns, replace=True))
-            ib.pack(side="right", padx=6)
-            gh_btns.append(ib)
+            if spec.get("remote"):  # GitHub buttons only for the files published there
+                gb = ttk.Button(b, text="Update from GitHub...",
+                                command=lambda k=kind: json_github([k], w, lbl, gh_btns))
+                gb.pack(side="right")
+                gh_btns.append(gb)
+                ib = ttk.Button(b, text="Import from GitHub", style="Danger.TButton",
+                                command=lambda k=kind: json_github([k], w, lbl, gh_btns, replace=True))
+                ib.pack(side="right", padx=6)
+                gh_btns.append(ib)
         bottom = ttk.Frame(w)
         bottom.pack(fill="x", padx=14, pady=(4, 12))
         lbl = ttk.Label(bottom, text="")
-        ab = ttk.Button(bottom, text="Update both from GitHub...", style="Accent.TButton",
-                        command=lambda: json_github(["names", "fields"], w, lbl, gh_btns))
-        ab.pack(side="left")
-        gh_btns.append(ab)
-        ib2 = ttk.Button(bottom, text="Import both from GitHub", style="Danger.TButton",
-                         command=lambda: json_github(["names", "fields"], w, lbl, gh_btns, replace=True))
-        ib2.pack(side="left", padx=6)
-        gh_btns.append(ib2)
         lbl.pack(side="left", padx=10)
         ttk.Button(bottom, text="Close", command=w.destroy).pack(side="right")
         autofit(w, 620, 400)

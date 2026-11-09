@@ -85,10 +85,6 @@
         "kind": "int32",
         "hash": 247607009
       },
-      "Song of Storms owned": {
-        "kind": "int32",
-        "hash": 725212495
-      },
       "Hookshot owned": {
         "kind": "int32",
         "hash": 4288212312
@@ -100,10 +96,6 @@
       "Farore's Wind owned": {
         "kind": "int32",
         "hash": 4289458264
-      },
-      "Sun's Song owned": {
-        "kind": "int32",
-        "hash": 375247277
       },
       "Deku Stick Stock Number": {
         "kind": "int32",
@@ -136,11 +128,52 @@
       "Save Position": {
         "kind": "int32",
         "hash": 3364127117
+      },
+      "[Ocarina melody] Epona's Song owned": {
+        "kind": "int32",
+        "hash": 3029511219
+      },
+      "[Ocarina melody] Bolero of Fire owned": {
+        "kind": "int32",
+        "hash": 1225005753
+      },
+      "[Ocarina melody] Requiem of Spirit owned": {
+        "kind": "int32",
+        "hash": 2150250152
+      },
+      "[Ocarina melody] Scarecrow's Song owned": {
+        "kind": "int32",
+        "hash": 1585904461
+      },
+      "[Ocarina melody] Saria's Song owned": {
+        "kind": "int32",
+        "hash": 3556294604
+      },
+      "[Ocarina melody] Prelude of Light owned": {
+        "kind": "int32",
+        "hash": 3593604004
+      },
+      "[Ocarina melody] Serenade of Water owned": {
+        "kind": "int32",
+        "hash": 1067858310
+      },
+      "[Ocarina melody] Zelda's Lullaby owned": {
+        "kind": "int32",
+        "hash": 29491202
+      },
+      "[Ocarina melody] Song of Time owned": {
+        "kind": "int32",
+        "hash": 62080270
+      },
+      "[Ocarina melody] Minuet of Forest owned": {
+        "kind": "int32",
+        "hash": 3691645780
+      },
+      "[Ocarina melody] Nocturne of Shadow owned": {
+        "kind": "int32",
+        "hash": 3271267828
       }
     }
-  },
-  "generic": {
-    "progress.sav": {}
   },
   "040074A01BF12000": {
     "progress.sav": {

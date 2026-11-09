@@ -573,7 +573,7 @@ A backup of your file is made first in every case. The `🔄 Updates` button sho
 
 Small tricks that are known to work in specific games. They all use the tools described in the tutorials above.
 
-### Ocarina of Time Remake: switch between child and adult
+### Ocarina of Time Remake: switch between child and adult anytime
 
 > [!WARNING]
 > Back up your `progress.sav` first (the program also does it automatically).

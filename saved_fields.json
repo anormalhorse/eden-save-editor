@@ -1,0 +1,189 @@
+{
+  "0400486024DEC000": {
+    "progress.sav": {
+      "Rupees": {
+        "kind": "int32",
+        "hash": 2809733591
+      },
+      "Current health": {
+        "kind": "int32",
+        "hash": 833312128
+      },
+      "Max health": {
+        "kind": "int32",
+        "hash": 4225768865
+      },
+      "Max magic": {
+        "kind": "int32",
+        "hash": 316029591
+      },
+      "Gold Skulltula tokens": {
+        "kind": "int32",
+        "hash": 74668408
+      },
+      "Kokiri Sword owned": {
+        "kind": "int32",
+        "hash": 1079872015
+      },
+      "Master Sword owned": {
+        "kind": "int32",
+        "hash": 2061733467
+      },
+      "Biggoron Sword owned": {
+        "kind": "int32",
+        "hash": 860252178
+      },
+      "Deku Shield owned": {
+        "kind": "int32",
+        "hash": 1377294878
+      },
+      "Bottle 1 contents": {
+        "kind": "int32",
+        "hash": 2101927798
+      },
+      "Bottle 2 contents": {
+        "kind": "int32",
+        "hash": 517805642
+      },
+      "Bottle 3 contents": {
+        "kind": "int32",
+        "hash": 3087823016
+      },
+      "Bottle 4 contents": {
+        "kind": "int32",
+        "hash": 3837899260
+      },
+      "Bottle 5 contents": {
+        "kind": "int32",
+        "hash": 912136531
+      },
+      "Amiibo pouch owned": {
+        "kind": "int32",
+        "hash": 889627991
+      },
+      "Lens of Truth owned": {
+        "kind": "int32",
+        "hash": 2145559986
+      },
+      "Bottle owned": {
+        "kind": "int32",
+        "hash": 285651074
+      },
+      "Bottle with letter owned": {
+        "kind": "int32",
+        "hash": 386620914
+      },
+      "Gerudo token owned": {
+        "kind": "int32",
+        "hash": 241329351
+      },
+      "Small bomb bag owned": {
+        "kind": "int32",
+        "hash": 2789154349
+      },
+      "Slingshot owned": {
+        "kind": "int32",
+        "hash": 247607009
+      },
+      "Song of Storms owned": {
+        "kind": "int32",
+        "hash": 725212495
+      },
+      "Hookshot owned": {
+        "kind": "int32",
+        "hash": 4288212312
+      },
+      "Longshot owned": {
+        "kind": "int32",
+        "hash": 950969275
+      },
+      "Farore's Wind owned": {
+        "kind": "int32",
+        "hash": 4289458264
+      },
+      "Sun's Song owned": {
+        "kind": "int32",
+        "hash": 375247277
+      },
+      "Deku Stick Stock Number": {
+        "kind": "int32",
+        "hash": 3108586513
+      },
+      "Stone Forest owned": {
+        "kind": "int32",
+        "hash": 285967340
+      },
+      "Stone Fire owned": {
+        "kind": "int32",
+        "hash": 2299057837
+      },
+      "Stone Water owned": {
+        "kind": "int32",
+        "hash": 4005790709
+      },
+      "Forest Stone Stock Number": {
+        "kind": "int32",
+        "hash": 3419530636
+      },
+      "Fire Stone Stock Number": {
+        "kind": "int32",
+        "hash": 2104077639
+      },
+      "Water Stone Stock Number": {
+        "kind": "int32",
+        "hash": 3101933381
+      },
+      "Save Position": {
+        "kind": "int32",
+        "hash": 3364127117
+      }
+    }
+  },
+  "generic": {
+    "progress.sav": {}
+  },
+  "040074A01BF12000": {
+    "progress.sav": {
+      "Bananamond": {
+        "kind": "int32",
+        "hash": 775242048
+      },
+      "Money": {
+        "kind": "int32",
+        "hash": 2883317772
+      },
+      "Is Got DK Island First Figure?": {
+        "kind": "int32",
+        "hash": 1771541303
+      },
+      "Is Open Burger Mission?": {
+        "kind": "int32",
+        "hash": 3711305900
+      },
+      "Is Skipped Forest?": {
+        "kind": "int32",
+        "hash": 3770263485
+      },
+      "Is Skipped Ice?": {
+        "kind": "int32",
+        "hash": 626866501
+      },
+      "Skill Point": {
+        "kind": "int32",
+        "hash": 2122876480
+      },
+      "Bananamond Chip": {
+        "kind": "int32",
+        "hash": 1602213301
+      },
+      "Skill Level": {
+        "kind": "int32",
+        "hash": 1360965854
+      },
+      "Player Life": {
+        "kind": "int32",
+        "hash": 3901042471
+      }
+    }
+  }
+}

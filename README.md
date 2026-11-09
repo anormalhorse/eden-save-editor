@@ -12,27 +12,7 @@
 
 <p align="center">
   <a href="https://github.com/anormalhorse/eden-save-editor/releases/latest"><img src="https://img.shields.io/github/v/release/anormalhorse/eden-save-editor?style=flat&label=LATEST%20VERSION&labelColor=20242B&color=7C5CFF&logo=github&logoColor=white" alt="Latest release"></a>
-  <a href="https://github.com/anormalhorse/eden-save-editor/releases"><img src="https://img.shields.io/github/downloads/anormalhorse/eden-save-editor/total?style=flat&label=DOWNLOADS&labelColor=20242B&color=16A36A&logo=github&logoColor=white" alt="Downloads"></a>
   <a href="LICENSE"><img src="https://img.shields.io/badge/LICENSE-MIT-64748B?style=flat&labelColor=20242B&logo=opensourceinitiative&logoColor=white" alt="MIT license"></a>
-  <a href="https://github.com/anormalhorse/eden-save-editor/actions/workflows/build.yml"><img src="https://img.shields.io/github/actions/workflow/status/anormalhorse/eden-save-editor/build.yml?style=flat&label=BUILD&labelColor=20242B&logo=githubactions&logoColor=white" alt="Build status"></a>
-</p>
-
-
-<p align="center">
-  <a href="#download">Download</a> ·
-  <a href="#quick-start">Quick start</a> ·
-  <a href="#features">Features</a> ·
-  <a href="#requirements">Requirements</a>
-</p>
-<p align="center">
-  <a href="#optional-ready-made-entries-saved_fieldsjson">Ready-made entries</a> ·
-  <a href="#which-tutorial-should-i-follow">Tutorials</a> ·
-  <a href="#game-specific-tips">Game tips</a> ·
-  <a href="#troubleshooting">Troubleshooting</a> ·
-  <a href="#legal-notice">Legal</a>
-</p>
-
-<h3 align="center">Download</h3>
 
 <p align="center">
   <a href="https://github.com/anormalhorse/eden-save-editor/releases/latest/download/EdenSaveEditor-windows-x64.zip"><img src="https://img.shields.io/badge/WINDOWS-DOWNLOAD%20.ZIP-20242B?style=for-the-badge&logo=data%3Aimage%2Fsvg%2Bxml%3Bbase64%2CPHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNCAyNCI%2BPHBhdGggZmlsbD0iIzAwQTRFRiIgZD0iTTEgNC4yIDEwLjUgMi45djguNkgxem0xMC43LTEuNUwyMyAxdjEwLjVIMTEuN3pNMSAxMi44aDkuNXY4LjZMMSAyMC4xem0xMC43IDBIMjN2MTAuNWwtMTEuMy0xLjZ6Ii8%2BPC9zdmc%2B" alt="Download for Windows"></a>&nbsp;&nbsp;
@@ -41,14 +21,18 @@
 </p>
 
 <p align="center">
-  <strong>Choose your operating system on the latest release page.</strong><br>
-  Ready-to-run builds are provided for Windows, Linux and macOS (Apple Silicon). You do not need to install Python.<br>
-  Ready-made entries (<code>saved_fields.json</code>) are downloaded from inside the program, see <a href="#optional-ready-made-entries-saved_fieldsjson">how to use them</a>.
+  <a href="#quick-start">Quick start</a> ·
+  <a href="#features">Features</a> ·
+  <a href="#requirements">Requirements</a> ·
+    <a href="#optional-ready-made-entries-saved_fieldsjson">Ready-made entries</a>
+</p>
+<p align="center">
+  <a href="#which-tutorial-should-i-follow">Tutorials</a> ·
+  <a href="#game-specific-tips">Game tips</a> ·
+  <a href="#troubleshooting">Troubleshooting</a> ·
+  <a href="#legal-notice">Legal</a>
 </p>
 
-<p align="center">
-  <a href="https://github.com/anormalhorse/eden-save-editor/releases"><strong>Browse all versions and release notes →</strong></a>
-</p>
 
 ---
 

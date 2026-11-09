@@ -11,6 +11,19 @@
 </p>
 
 <p align="center">
+  <a href="#quick-start">Quick start</a> ·
+  <a href="#features">Features</a> ·
+  <a href="#requirements">Requirements</a> ·
+  <a href="#optional-ready-made-entries-saved_fieldsjson">Ready-made entries</a> ·
+  <a href="#which-tutorial-should-i-follow">Tutorials</a> ·
+  <a href="#game-specific-tips">Game tips</a> ·
+  <a href="#troubleshooting">Troubleshooting</a> ·
+  <a href="#legal-notice">Legal</a>
+</p>
+
+---
+
+<p align="center">
   <a href="https://github.com/anormalhorse/eden-save-editor/releases/latest"><img src="https://img.shields.io/github/v/release/anormalhorse/eden-save-editor?style=flat&label=LATEST%20VERSION&labelColor=20242B&color=7C5CFF&logo=github&logoColor=white" alt="Latest release"></a>
   <a href="LICENSE"><img src="https://img.shields.io/badge/LICENSE-MIT-64748B?style=flat&labelColor=20242B&logo=opensourceinitiative&logoColor=white" alt="MIT license"></a>
 
@@ -20,20 +33,6 @@
   <a href="https://github.com/anormalhorse/eden-save-editor/releases/latest/download/EdenSaveEditor-macos-arm64.zip"><img src="https://img.shields.io/badge/macOS-DOWNLOAD%20.ZIP-20242B?style=for-the-badge&logo=apple&logoColor=FFFFFF" alt="Download for macOS"></a>
 </p>
 
-<p align="center">
-  <a href="#quick-start">Quick start</a> ·
-  <a href="#features">Features</a> ·
-  <a href="#requirements">Requirements</a> ·
-    <a href="#optional-ready-made-entries-saved_fieldsjson">Ready-made entries</a>
-</p>
-<p align="center">
-  <a href="#which-tutorial-should-i-follow">Tutorials</a> ·
-  <a href="#game-specific-tips">Game tips</a> ·
-  <a href="#troubleshooting">Troubleshooting</a> ·
-  <a href="#legal-notice">Legal</a>
-</p>
-
-
 ---
 
 <p align="center">
@@ -41,7 +40,7 @@
 </p>
 
 > [!WARNING]
-> **Unofficial.** Not affiliated with Nintendo, the Eden project or any game publisher. This tool contains **no games, no firmware, no keys and no decryption**. Use it only on saves and dumps you created yourself from games you legally own.
+> **Unofficial.** Not affiliated with Nintendo, the Eden project or any game publisher. This tool contains **no games, no firmware, no keys, no decryption and no data taken from game files**. It is meant only for saves and dumps you created yourself from games you legally own. It is **not** meant for, and gives no help with, pirated copies.
 
 ---
 
@@ -73,7 +72,7 @@ prefer not to search yourself, an **optional** `saved_fields.json` with ready-ma
 and can be added from inside the program (see [Optional: ready-made entries](#optional-ready-made-entries-saved_fieldsjson)).
 
 > [!NOTE]
-> For *Ocarina of Time Remake* (title ID `0400486024DEC000`) a small set of known names and default
+> For *Ocarina of Time Remake* (title ID `0400486024DEC000`) a small set of well-known entry names and default
 > fields is built in. See also [Game-specific tips](#game-specific-tips).
 
 ---
@@ -152,11 +151,11 @@ and can be added from inside the program (see [Optional: ready-made entries](#op
   save stays valid ([Tutorial 6](#tutorial-6-edit-lists-in-the-data-blocks)).
 
 ### Naming the keys
-- **Names from the game**: load a list of names (e.g. the list saved from the NUP search). The key is a
+- **Names from your own game dump**: load a list of names that **you** extracted from your own dump (e.g. the list saved from the NUP search). The key is a
   hash of the name, and the program detects which of 16 hash variants[^hashes] the game uses. Ranges like `PouchItem_{0-19}` are expanded.
-  Names are stored in `hash_names.json`.
-- **Find names for the open save**: automatic reverse lookup. The program reads every word
-  stored in the game files, builds candidate names, hashes them and names the keys of your save that match
+  Names are stored **only on your computer**, in `hash_names.json`. That file is never uploaded, is not part of the project and must not be shared (see [Legal notice](#legal-notice)).
+- **Find names for the open save**: automatic reverse lookup, done entirely on your computer. The program reads every word
+  stored in the files of **your own** game dump, builds candidate names, hashes them and names the keys of your save that match
   ([Tutorial 7](#tutorial-7-find-the-names-of-unknown-keys-automatically)). It has its own tab, with a
   live log of every name matched and the file it came from. You can **limit the search by folder**:
   read only the files whose path contains some text, and/or skip others (by default textures, models, effects, terrain,
@@ -165,7 +164,7 @@ and can be added from inside the program (see [Optional: ready-made entries](#op
   recognised as *Ocarina of Time Remake* from its well-known keys, so its names work everywhere.
 
 ### Game files
-- **NUP archive and game folder browser** for **unencrypted dumps of games you own**: browse, search
+- **NUP archive and game folder browser** for **unencrypted dumps that you made yourself from games you own**: browse, search
   (including zstd-compressed files) with live results, copy names, save the list, extract. It
   also opens a **game folder** (the already extracted contents of a NUP) and works on it in place
   ([Tutorial 4](#tutorial-4-browse-and-search-a-game-dump-nup)).
@@ -184,12 +183,13 @@ and can be added from inside the program (see [Optional: ready-made entries](#op
 - **If it cannot update itself** (for example the program is in a folder you cannot write to, or it is a
   `git` copy), the window offers the release page so you can download it by hand. With no internet
   connection the program simply starts.
-- **New data from GitHub**: the program also compares your `hash_names.json` and `saved_fields.json`
+- **New data from GitHub**: the program also compares your `saved_fields.json`
   with the project's. If GitHub has entries you are missing, a bar appears under the header with
   `Add all new` or `Review and add...`
   ([Tutorial 8](#tutorial-8-export-import-and-merge-your-data-files)). Nothing of yours is ever removed.
-- **Import from GitHub (replace)**: in `JSON data...`, the red `Import from GitHub` button downloads the project's file
+- **Import from GitHub (replace)**: in `JSON data...`, the red `Import from GitHub` button (available only for `saved_fields.json`) downloads the project's file
   and **replaces** yours with it, without merging (a backup is made first). Use it when you want an exact copy.
+  `hash_names.json` is **not** published by the project and is never downloaded or uploaded.
 
 ### Safety
 - **Automatic backups** in `save_backups/` before every modification (several backups in the same second
@@ -208,7 +208,7 @@ and can be added from inside the program (see [Optional: ready-made entries](#op
 | **Field** | An entry in the editor's main list: a name you chose, where its value is in the save, and its type. |
 | **Key** | The ID the game uses to find a value in the save. It is usually a *hash* of a name. |
 | **Hash** | A number computed from a name. It cannot be reversed, so the editor tries many names instead ([Tutorial 7](#tutorial-7-find-the-names-of-unknown-keys-automatically)). |
-| **NUP** | A game archive format (`.nup`) for unencrypted Switch dumps, created by [a55uka/nup](https://github.com/a55uka/nup). The editor can browse and search it without extracting. |
+| **NUP** | A game archive format (`.nup`) for unencrypted Switch dumps, created by [a55uka/nup](https://github.com/a55uka/nup). The editor can browse and search it without extracting. You need your own dump: the project does not provide any. |
 | **Backup** | A copy of the save made automatically in `save_backups/` before each change. |
 
 ---
@@ -230,7 +230,7 @@ python eden_save_editor.py
 ## Optional: ready-made entries (`saved_fields.json`)
 
 Finding values takes a bit of work, so the project keeps a `saved_fields.json` in the repository
-with entries (names + keys/offsets) that have already been found for several games.
+with entries (labels written by the project author + keys/offsets) that have already been found for several games.
 
 > [!NOTE]
 > It is completely optional: the editor works fine without it.
@@ -261,8 +261,9 @@ The program also tells you by itself when GitHub has entries you are missing (a 
 
 <br>
 
-- Only entry names, key/offset information and value types.
-- No game data, no save files, no encryption keys, no copyrighted content.
+- Only entry labels (short descriptions written by the author, e.g. "Coins"), key/offset numbers and value types.
+- **No list of hash names**, no text or names extracted from game files, no game data, no save files, no encryption keys, no copyrighted content.
+- Your `hash_names.json` is a different file: it is built on your PC from your own dump and is never part of the project.
 
 </details>
 
@@ -281,7 +282,7 @@ The program also tells you by itself when GitHub has entries you are missing (a 
 | See every value and edit many at once (e.g. inventory) | [Tutorial 5](#tutorial-5-browse-and-edit-every-value-inventory-progress) |
 | Add or remove IDs in a list (e.g. unlocked items) | [Tutorial 6](#tutorial-6-edit-lists-in-the-data-blocks) |
 | Get names for unnamed keys automatically | [Tutorial 7](#tutorial-7-find-the-names-of-unknown-keys-automatically) |
-| Update, share, back up or combine my names / saved fields with GitHub or another file | [Tutorial 8](#tutorial-8-export-import-and-merge-your-data-files) |
+| Back up my data files, or update / merge my saved fields with GitHub or another file | [Tutorial 8](#tutorial-8-export-import-and-merge-your-data-files) |
 | Undo a change | [Restoring a backup](#restoring-a-backup) |
 
 ---
@@ -383,7 +384,8 @@ slots**. `Edit strings...` shows them so you can replace the text.
 
 **Goal:** look inside a game dump to learn its internal names. **You need:** a `.nup` file or game folder that you dumped yourself.
 
-For **unencrypted dumps of games you own**. Useful to discover internal names that
+For **unencrypted dumps that you made yourself from games you own**. The editor does not provide, download or
+help you find any game file. Useful to discover internal names that
 you can then look for in `Edit strings...`.
 
 1. Click `Game archive / folder...`, then either `Open .nup...` and select the file, or
@@ -402,6 +404,10 @@ you can then look for in `Edit strings...`.
 5. Use `Copy selected`, `Copy names` (or right-click) and `Save list...`.
    `Extract the file of the selected row...` extracts a single file.
 
+> [!IMPORTANT]
+> Saved lists and extracted files come from your game and are for **your own use only**. Don't upload or share them
+> (not in issues, pull requests, forums or chats). See [Legal notice](#legal-notice).
+
 > [!NOTE]
 > Compressed data needs `pip install zstandard` when you run the script.
 
@@ -416,7 +422,7 @@ Use this to work on many values at once without creating each field by hand.
    Use `Filter` (name, key or number), `Only named` and `Group by name` to narrow it down.
 3. **Give names to keys**, in any of these ways:
    - `Name selected...`: name one key yourself.
-   - `Load names list...`: choose a text file with names from the game (for example the
+   - `Load names list...`: choose a text file with names from your own game dump (for example the
      list saved from the NUP search, see Tutorial 4). The program tries all hash types,
      reports which one matches, and names every key it finds.
    - `Try a name...`: test a single name (e.g. `PlayerStatus.CurrentRupee`).
@@ -445,7 +451,7 @@ Only lists of 64-bit values can be edited for now. Other blocks are shown as raw
 
 ## Tutorial 7: Find the names of unknown keys automatically
 
-**Goal:** automatically find the names of unnamed keys. **You need:** the open save and the game's `.nup` or folder.
+**Goal:** automatically find the names of unnamed keys. **You need:** the open save and the `.nup` or folder of your own game dump.
 
 A key is a hash of a name, and a hash cannot be undone. The program therefore does the
 opposite: it hashes many possible names and checks which ones are keys of your save.
@@ -471,6 +477,7 @@ opposite: it hashes many possible names and checks which ones are keys of your s
      match `Text`). `Text/data only` puts the default back and `Clear filters` empties both boxes. The filters used are
      written at the start of the log.
    Good folders to read are the ones with events and dialogues, item tables, actor names and game flags.
+   Everything is read and processed locally on your computer: nothing is sent anywhere.
 4. Press `Start` (it can take a few minutes, `Stop` cancels). A **progress bar** above the tabs
    shows the percentage, the elapsed time and an estimate of the time left (the estimate is rough
    at first and gets more accurate as the scan goes on). Under it, the tab shows the file being
@@ -491,6 +498,10 @@ opposite: it hashes many possible names and checks which ones are keys of your s
 > [!NOTE]
 > Keys that stay unnamed use another name shape, or are not names at all (positions,
 > counters...). Use `Add by name` on a few entries to teach the program a new game's shapes.
+
+> [!IMPORTANT]
+> The names found end up in your `hash_names.json`. That file contains text taken from the game, so it is **for your own use only**:
+> do not publish it, post it online or send it to others, and do not add it to the repository (see [Legal notice](#legal-notice)).
 
 ### Limiting RAM and CPU in the searches
 
@@ -527,12 +538,12 @@ Untick `Notify me when a long task ends` (bottom right of the `Resource use of t
 
 ## Tutorial 8: Export, import and merge your data files
 
-**Goal:** share your discovered names and saved fields, move them to another PC, update them from GitHub, or combine them with someone else's file without losing anything of yours. **You need:** a `.json` file exported by another copy of the editor (or your own, for a backup), or just an internet connection for the GitHub update.
+**Goal:** back up your data files, move them to **your own** other PC, update your saved fields from GitHub, or merge another `saved_fields.json` into yours without losing anything of yours. **You need:** a `.json` file exported by your own copy of the editor (for a backup), or just an internet connection for the GitHub update.
 
 Click `JSON data...` in the main window. There is one block per file:
 
-- **Hash names** (`hash_names.json`): the names found for the keys of each game.
-- **Saved fields** (`saved_fields.json`): the entries of the main list for each save file.
+- **Hash names** (`hash_names.json`): the names found for the keys of each game. This file comes from **your own** game dump: keep it private. Export and import are only for backups and for moving it between your own computers. There are no GitHub buttons for it.
+- **Saved fields** (`saved_fields.json`): the entries of the main list for each save file. This one can also be updated from the project's repository.
 
 For each one:
 
@@ -542,19 +553,19 @@ For each one:
    - **Different**: the same place has another value in the file. Not ticked by default, so yours is kept unless you tick it.
    - Nothing of yours is ever removed. Click a row (or press `Space`) to tick/untick it, then press `Merge ticked`.
 3. `Import (replace)...` replaces your data with the file. Use it only if you really want an exact copy: anything that is only in yours is lost.
-4. `Import from GitHub` (red button, next to `Update from GitHub...`) downloads the project's file and **replaces**
+4. `Import from GitHub` (red button, next to `Update from GitHub...`, only for **Saved fields**) downloads the project's file and **replaces**
    yours with it, with no merge and no comparison. It asks for confirmation first, and a backup is made in
-   `save_backups`. `Import both from GitHub` does it for the two files. Anything that is only in yours is lost: use
+   `save_backups`. Anything that is only in yours is lost: use
    `Export...` first if you want to keep it.
-5. `Update from GitHub...` downloads the project's current file (`hash_names.json` or `saved_fields.json` from the `main` branch of the repository) **without saving it**, then asks what to do:
+5. `Update from GitHub...` (only for **Saved fields**) downloads the project's current `saved_fields.json` from the `main` branch of the repository **without saving it**, then asks what to do:
    - `See the differences and add what is missing` (recommended): opens the same comparison as `Merge...`.
    - `Replace mine with the GitHub version`: asks for confirmation first, because anything only in yours is lost.
    - `Cancel`: nothing changes.
 
-   `Update both from GitHub...` does the same for the two files, one after the other. If you are already up to date, the program says so. An internet connection is needed only for these buttons and for the check at startup.
+   If you are already up to date, the program says so. An internet connection is needed only for these buttons and for the check at startup.
 
 **Notification at startup.** You do not have to remember to press the button: every time the program
-starts it compares your two files with the project's. If GitHub has entries that you are missing, a bar appears under the
+starts it compares your `saved_fields.json` with the project's. If GitHub has entries that you are missing, a bar appears under the
 header ("GitHub has data that you are missing: ...") with three buttons:
 
 - `Add all new`: adds only the missing entries, right away. Entries that exist in both with a different value are **not** touched.
@@ -567,7 +578,7 @@ A backup of your file is made first in every case. The `🔄 Updates` button sho
 > Merge and Import make a backup of the previous file in the `save_backups` folder first, so you can always go back.
 
 > [!NOTE]
-> Only the content of the JSON file is exported. The names that are built into the program (for example the ones for Ocarina of Time Remake) are not part of it.
+> Only the content of the JSON file is exported. The entry names that are built into the program (for example the ones for Ocarina of Time Remake) are not part of it.
 
 ## Game-specific tips
 
@@ -626,7 +637,7 @@ originals stay where they were; you can delete them once you see everything in t
 |------|---------|
 | `save_backups/` | Automatic backup before each write |
 | `saved_fields.json` | Your fields, per game + file name (or the optional file from the repository) |
-| `hash_names.json` | Names you gave to keys / loaded from a names list / found automatically, per game |
+| `hash_names.json` | Names you gave to keys / loaded from a names list / found automatically from your own dump, per game. **Private, for your use only: never share or publish it** |
 | `ui_settings.json` | Interface settings (dark or light theme) and which GitHub data notices you already dismissed |
 | `program_backups/` | The previous version of the program, kept after each automatic update |
 
@@ -680,12 +691,26 @@ The automatic update reads the **latest published release** (drafts and pre-rele
 
 - The tool and the optional `saved_fields.json` contain **no game data, no encryption
   keys, no firmware and no copyrighted content**, and nothing here bypasses any
-  protection or encryption. The optional file and the built-in names only list entry
-  names and positions.
+  protection or encryption. The optional file only lists short labels written by the author, key numbers and positions.
+- The project **does not publish, host or distribute** any list of names extracted from game files. Names found with
+  `Find names for the open save`, `Load names list...` or the NUP search are generated **on your computer** from
+  **your own** dump and stay there (`hash_names.json`).
 - Use it only with save files and game dumps that **you created yourself from games
-  you legally own**. Do not share saves or dumps containing copyrighted material.
+  you legally own**. The project does not provide games, dumps, keys or firmware, does not tell you where to get them,
+  and does not support piracy in any form.
+- **Do not share** (in issues, pull requests, discussions, forums, chats or anywhere else): game dumps, `.nup` files, extracted game files,
+  lists of names taken from the game, your `hash_names.json`, or saves containing copyrighted material.
+  Requests for any of these, or help with pirated copies, will be ignored or removed.
 - Do not use it to cheat in online or multiplayer services, or in ways that violate
   a game's or service's terms.
+- Laws about dumping, reverse engineering and emulation vary from country to country. You are responsible for
+  checking and following the laws that apply to you.
+
+## Contributing
+
+- You are welcome to share **saved fields** (a label you wrote + key/offset + value type) through an issue or pull request on `saved_fields.json`.
+- Please **do not** send `hash_names.json`, name lists, dumps, extracted files, keys, firmware or saves. They will not be accepted.
+- Maintainers: keep `hash_names.json` out of the repository (for example with a line `hash_names.json` in `.gitignore`).
 
 ## Credits
 

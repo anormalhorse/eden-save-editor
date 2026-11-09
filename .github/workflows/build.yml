@@ -1,0 +1,90 @@
+name: Build
+
+on:
+  push:
+    tags:
+      - "v*"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    name: Build (${{ matrix.name }})
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: windows-latest
+            name: windows-x64
+            sep: ";"
+          - os: ubuntu-latest
+            name: linux-x64
+            sep: ":"
+          - os: macos-latest
+            name: macos-arm64
+            sep: ":"
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install Tkinter (Linux)
+        if: runner.os == 'Linux'
+        run: sudo apt-get update && sudo apt-get install -y python3-tk
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt pyinstaller pillow
+
+      - name: Build with PyInstaller
+        shell: bash
+        run: |
+          pyinstaller --onefile --windowed \
+            --name EdenSaveEditor \
+            --icon assets/icon.png \
+            --add-data "assets${{ matrix.sep }}assets" \
+            --hidden-import zstandard \
+            eden_save_editor.py
+
+      - name: Package (Windows)
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: Compress-Archive -Path dist/EdenSaveEditor.exe -DestinationPath EdenSaveEditor-${{ matrix.name }}.zip
+
+      - name: Package (Linux)
+        if: runner.os == 'Linux'
+        run: tar -czf EdenSaveEditor-${{ matrix.name }}.tar.gz -C dist EdenSaveEditor
+
+      - name: Package (macOS)
+        if: runner.os == 'macOS'
+        run: ditto -c -k --keepParent dist/EdenSaveEditor.app EdenSaveEditor-${{ matrix.name }}.zip
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: EdenSaveEditor-${{ matrix.name }}
+          path: EdenSaveEditor-${{ matrix.name }}.*
+
+  release:
+    name: Publish release
+    needs: build
+    if: startsWith(github.ref, 'refs/tags/v')
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/download-artifact@v4
+        with:
+          path: artifacts
+          merge-multiple: true
+
+      - uses: softprops/action-gh-release@v2
+        with:
+          files: artifacts/*
+          generate_release_notes: true

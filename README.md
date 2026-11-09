@@ -6,7 +6,7 @@
 
 <p align="center">
   A simple Python/Tkinter save editor to inspect and edit <strong>your own</strong> save files<br>
-  of Nintendo Switch 2 games played on <a href="https://git.eden-emu.dev/eden-emu/eden">Eden</a>-based emulators (tested with <a href="https://github.com/zortos293/Lichii">Lichii</a>).<br>
+  of Nintendo Switch 2 games played on <a href="https://git.eden-emu.dev/eden-emu/eden">Eden</a>-based emulators (like <a href="https://github.com/Eglantine-Community/Eglantine">Eglantine</a> or <a href="https://github.com/zortos293/Lichii">Lichii</a>).<br>
   No predefined entries needed: you find a value, give it a name, and the tool remembers it.
 </p>
 

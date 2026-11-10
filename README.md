@@ -1,8 +1,8 @@
 <p align="center">
-  <img src="assets/icon.png" alt="Eden Save Editor logo" width="128" height="128">
+  <img src="assets/icon.png" alt="Eden-Based Save Editor logo" width="128" height="128">
 </p>
 
-<h1 align="center">Eden Save Editor</h1>
+<h1 align="center">Eden-Based Save Editor</h1>
 
 <p align="center">
   A simple Python/Tkinter save editor to inspect and edit <strong>your own</strong> save files<br>
@@ -36,7 +36,7 @@
 ---
 
 <p align="center">
-  <img src="docs/screenshot.png" alt="Eden Save Editor screenshot">
+  <img src="docs/screenshot.png" alt="Eden-Based Save Editor screenshot">
 </p>
 
 > [!WARNING]
@@ -46,7 +46,7 @@
 
 ## What is it?
 
-Games keep things like coins, items and story progress in a **save file**. Eden Save Editor opens
+Games keep things like coins, items and story progress in a **save file**. Eden-Based Save Editor opens
 that file, helps you **find** where a value is stored, lets you **name** it (for example "Coins")
 and then **change** it. You do not need to know anything about the file format.
 
@@ -196,7 +196,7 @@ and can be added from inside the program (see [Optional: ready-made entries](#op
   never overwrite each other; batch edits make one backup).
 - **Restore a backup**: put back any earlier version of the file (the current one is backed up first).
 
-<p align="right"><a href="#eden-save-editor">⬆ Back to top</a></p>
+<p align="right"><a href="#eden-based-save-editor">⬆ Back to top</a></p>
 
 ---
 
@@ -268,7 +268,7 @@ The program also tells you by itself when GitHub has entries you are missing (a 
 
 </details>
 
-<p align="right"><a href="#eden-save-editor">⬆ Back to top</a></p>
+<p align="right"><a href="#eden-based-save-editor">⬆ Back to top</a></p>
 
 ---
 
@@ -628,11 +628,29 @@ blocks; when one changes size, every pointer that follows is shifted by the same
 
 ## Files created by the program (data folder)
 
-These files are kept **apart from the program**, in `%APPDATA%\EdenSaveEditor` on Windows
-(`AppData\Roaming`; with Python from the Microsoft Store, `C:\Users\<you>\EdenSaveEditor`, because the Store version hides AppData writes in a private folder; `~/.config/EdenSaveEditor` on Linux), so they survive updates and moving or
-deleting the program folder. The `📁 Data folder` button in the header opens it. Files that an older
-version kept next to the program are **copied** there the first time you start the new one (the
-originals stay where they were; you can delete them once you see everything in the new folder).
+These files are kept **apart from the program**, in **one single folder that is always the same**, however you
+start the program (script, Python from the Microsoft Store, `.exe`), so they survive updates and moving or
+deleting the program folder:
+
+| System | Data folder |
+|:--|:--|
+| Windows | `C:\Users\<you>\EdenSaveEditor` (visible in Explorer, never redirected by Python from the Microsoft Store) |
+| macOS | `~/Library/Application Support/EdenSaveEditor` |
+| Linux | `~/.config/EdenSaveEditor` |
+
+The `📁 Data folder` button in the header opens it. To use another place (for example Documents), set the
+environment variable `EDEN_SAVE_EDITOR_DATA` to the folder you want. If the folder cannot be created, the program
+folder is used.
+
+**Old data folders are merged automatically.** Older versions could keep these files in different places depending
+on how the program was started: next to the program, in `AppData\Roaming\EdenSaveEditor`, in the hidden private folder of
+Python from the Microsoft Store, or in `Documents\EdenSaveEditor` (also inside OneDrive). The first time you start
+v1.2.2 or later, the program merges everything into the data folder:
+
+- JSON files (`saved_fields.json`, `hash_names.json`, `ui_settings.json`) are **merged**: only what you are missing is added, and your existing values are never overwritten.
+- Backups are copied over; a file with the same name but different content is kept as `<name>.from_<origin>`.
+- The old copies are then moved to `old_data_migrated/` inside the data folder, so nothing is deleted and no duplicates are left around.
+- If anything goes wrong, the originals stay where they are and the program starts normally.
 
 | Path | Purpose |
 |------|---------|
@@ -641,13 +659,14 @@ originals stay where they were; you can delete them once you see everything in t
 | `hash_names.json` | Names you gave to keys / loaded from a names list / found automatically from your own dump, per game. **Private, for your use only: never share or publish it** |
 | `ui_settings.json` | Interface settings (dark or light theme) and which GitHub data notices you already dismissed |
 | `program_backups/` | The previous version of the program, kept after each automatic update |
+| `old_data_migrated/` | The old data folders of earlier versions, moved here after being merged (you can delete it once you have checked that everything is in the data folder) |
 
 ## Publishing a release (maintainers)
 
 The automatic update reads the **latest published release** (drafts and pre-releases are ignored):
 
-1. Set `APP_VERSION` in `eden_save_editor.py` (for example `"1.2.0"`) and publish the release with the **same tag**
-   (`v1.2.0`). If the file inside the release says an older version than the tag, the program refuses to install it
+1. Set `APP_VERSION` in `eden_save_editor.py` (for example `"1.2.2"`) and publish the release with the **same tag**
+   (`v1.2.2`). If the file inside the release says an older version than the tag, the program refuses to install it
    (it would offer the same update again and again).
 2. Attach the files with these names (the program picks the right one for each system and CPU):
    - `EdenSaveEditor-windows-x64.zip`: must contain **one** `EdenSaveEditor.exe` and no folder of libraries (a multi-file build is not updated automatically)
@@ -672,6 +691,7 @@ The automatic update reads the **latest published release** (drafts and pre-rele
 | NUP search skips compressed files | `pip install zstandard` |
 | The update window says the program cannot update itself | The program is in a folder you cannot write to, or it is a `git` copy: use `Release page` and download it by hand (or `git pull`) |
 | A bad update | Copy the file from `program_backups/` (in the data folder) back over the program |
+| My fields, names or backups seem to be missing after updating to 1.2.2 | Click `📁 Data folder`: they are merged into that folder, and the old copies are in `old_data_migrated/`. If you used a custom folder, check that `EDEN_SAVE_EDITOR_DATA` is still set |
 | "Already in the list" when adding an entry | That key already has an entry under another name: rename the existing one, or cancel |
 | `Find names for the open save` fills `hash_names.json` with random names (like `BottleA.wwgD`) | The search is reading binary files (textures...). Keep the default `Skip files whose path contains` filter, or use `Only read files whose path contains` with the folders of events and text data, and delete the false names |
 | `Find names for the open save` says all keys already have a name | Nothing to search: only keys without a name are looked for |

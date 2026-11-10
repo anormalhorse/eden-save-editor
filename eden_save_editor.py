@@ -1,10 +1,10 @@
 """
-Eden Save Editor - easy version (modern dark/light look).
+Eden-Based Save Editor - easy version (modern dark/light look).
 
 Run:  python eden_save_editor.py
 Before editing: CLOSE the game/emulator.
 Every edit creates a backup in the "save_backups" folder inside the data folder
-(Windows: AppData/Roaming/EdenSaveEditor; the "Data folder" button in the header opens it).
+(Windows: C:/Users/<you>/EdenSaveEditor; the "Data folder" button in the header opens it).
 
 Also browses/searches game archives in .nup format without extracting them, and game
 folders (the extracted contents of a NUP) the same way (button "Game archive / folder...").
@@ -45,29 +45,32 @@ import webbrowser
 import zlib
 from collections import Counter
 
-APP_VERSION = "1.2.1"
+APP_VERSION = "1.2.2"
 BASE = os.path.dirname(os.path.abspath(__file__))  # where the program is (icon, assets)
 
 
-def _is_store_python():
-    return os.name == "nt" and ("WindowsApps" in sys.executable or "PythonSoftwareFoundation" in sys.executable)
-
-
 def _data_dir():
-    """Folder for the user's own files (names, fields, settings, backups), kept apart from the program
-    so they survive updates and a moved/deleted program folder. Windows: %APPDATA%\\EdenSaveEditor
-    (AppData\\Roaming). Falls back to the program folder if it cannot be created."""
-    if _is_store_python():
-        # Python from the Microsoft Store redirects writes to AppData into a hidden private folder
-        # that Explorer cannot see, so use a normal folder in the user profile instead.
-        root = os.path.expanduser("~")
-    elif os.name == "nt":
-        root = os.environ.get("APPDATA") or os.path.expanduser("~")
-    elif sys.platform == "darwin":
-        root = os.path.expanduser("~/Library/Application Support")
+    """ONE folder for the user's own files (names, fields, settings, backups), kept apart from the
+    program so they survive updates and a moved/deleted program folder.
+
+    It is always the same folder, however the program is started (script, Store Python, .exe):
+      Windows : C:\\Users\\<you>\\EdenSaveEditor   (visible in Explorer, never redirected by Python
+                from the Microsoft Store, unlike AppData)
+      macOS   : ~/Library/Application Support/EdenSaveEditor
+      Linux   : ~/.config/EdenSaveEditor
+    To use another folder (e.g. Documents), set the environment variable EDEN_SAVE_EDITOR_DATA.
+    Falls back to the program folder if the folder cannot be created."""
+    custom = os.environ.get("EDEN_SAVE_EDITOR_DATA")
+    if custom:
+        d = os.path.abspath(os.path.expanduser(custom))
     else:
-        root = os.environ.get("XDG_CONFIG_HOME") or os.path.expanduser("~/.config")
-    d = os.path.join(root, "EdenSaveEditor")
+        if os.name == "nt":
+            root = os.path.expanduser("~")
+        elif sys.platform == "darwin":
+            root = os.path.expanduser("~/Library/Application Support")
+        else:
+            root = os.environ.get("XDG_CONFIG_HOME") or os.path.expanduser("~/.config")
+        d = os.path.join(root, "EdenSaveEditor")
     try:
         os.makedirs(d, exist_ok=True)
         return d
@@ -82,65 +85,163 @@ START_DIR = os.path.expandvars(r"%APPDATA%\eden\nand\user\save")
 NAMES_FILE = os.path.join(DATA_DIR, "hash_names.json")
 SETTINGS_FILE = os.path.join(DATA_DIR, "ui_settings.json")
 
+# ---- one-time consolidation of the data folders that older versions left around -------------
+# Older versions stored the same files in different places depending on how the program was
+# started: next to the program (e.g. in Documents), in %APPDATA%\EdenSaveEditor, or in the hidden
+# private folder of Python from the Microsoft Store (...\Packages\PythonSoftwareFoundation.Python.*\
+# LocalCache\Roaming\EdenSaveEditor). Everything is merged into DATA_DIR (nothing of yours is
+# overwritten or deleted) and the old copies are moved to DATA_DIR\old_data_migrated\.
+_DATA_FILES = ("saved_fields.json", "hash_names.json", "ui_settings.json")
+OLD_DATA_SUBDIR = "old_data_migrated"
 
-def _copy_missing(src_dir):
-    """Copy into DATA_DIR every file of src_dir (and of its save_backups) that DATA_DIR does not have."""
-    if not os.path.isdir(src_dir) or os.path.abspath(src_dir) == os.path.abspath(DATA_DIR):
+
+def _deep_add_missing(dst, src):
+    """Add to dict dst whatever dict src has and dst lacks (recursive). Values already in dst win."""
+    changed = False
+    for k, v in src.items():
+        if k not in dst:
+            dst[k] = v
+            changed = True
+        elif isinstance(dst[k], dict) and isinstance(v, dict) and _deep_add_missing(dst[k], v):
+            changed = True
+    return changed
+
+
+def _merge_json_file(src, dst):
+    """Copy src to dst, or, if dst exists, add to it the entries it is missing (atomic write).
+    Raises if a file cannot be read, so the caller keeps the original untouched."""
+    if not os.path.exists(dst):
+        shutil.copy2(src, dst)
         return
-    for sub, dst_dir in (("", DATA_DIR), ("save_backups", BACKUP_DIR)):
-        d = os.path.join(src_dir, sub) if sub else src_dir
-        try:
-            if not os.path.isdir(d):
+    with open(src, encoding="utf-8-sig") as f:
+        s = json.load(f)
+    with open(dst, encoding="utf-8-sig") as f:
+        d = json.load(f)
+    if isinstance(s, dict) and isinstance(d, dict) and _deep_add_missing(d, s):
+        tmp = dst + ".tmp"
+        with open(tmp, "w", encoding="utf-8") as f:
+            json.dump(d, f, indent=2, ensure_ascii=False)
+            f.flush()
+            os.fsync(f.fileno())
+        os.replace(tmp, dst)
+
+
+def _merge_backups(src_dir, dst_dir, label):
+    """Copy every backup file of src_dir that dst_dir does not have (a different file with the same
+    name is kept under another name)."""
+    import filecmp
+    os.makedirs(dst_dir, exist_ok=True)
+    for n in os.listdir(src_dir):
+        s, d = os.path.join(src_dir, n), os.path.join(dst_dir, n)
+        if not os.path.isfile(s):
+            continue
+        if os.path.exists(d):
+            if filecmp.cmp(s, d, shallow=False):
                 continue
-            os.makedirs(dst_dir, exist_ok=True)
-            for n in os.listdir(d):
-                src, dst = os.path.join(d, n), os.path.join(dst_dir, n)
-                if os.path.isfile(src) and not os.path.exists(dst):
-                    shutil.copy2(src, dst)
+            d = os.path.join(dst_dir, f"{n}.from_{label}")
+            if os.path.exists(d):
+                continue
+        shutil.copy2(s, d)
+
+
+def _archive_dir(label):
+    base = os.path.join(DATA_DIR, OLD_DATA_SUBDIR)
+    os.makedirs(base, exist_ok=True)
+    d, i = os.path.join(base, label), 1
+    while os.path.exists(d):
+        i += 1
+        d = os.path.join(base, f"{label}_{i}")
+    os.makedirs(d)
+    return d
+
+
+def _consolidate_one(label, src_dir, is_program_dir, data_dir=None):
+    """Merge one old folder into the data folder, then move its data to old_data_migrated/<label>.
+    Returns True if something was merged. On any problem the original files stay where they are."""
+    data_dir = data_dir or DATA_DIR
+    names = [n for n in _DATA_FILES if os.path.isfile(os.path.join(src_dir, n))]
+    has_bk = os.path.isdir(os.path.join(src_dir, "save_backups"))
+    if not names and not has_bk and is_program_dir:
+        return False
+    if not is_program_dir and not names and not has_bk and not os.listdir(src_dir):
+        try:
+            os.rmdir(src_dir)  # an empty leftover folder
         except OSError:
             pass
+        return False
+    ok, merged = [], []
+    for n in names:
+        try:
+            _merge_json_file(os.path.join(src_dir, n), os.path.join(data_dir, n))
+            ok.append(n)
+        except (OSError, ValueError):
+            pass
+    bk_ok = False
+    if has_bk:
+        try:
+            _merge_backups(os.path.join(src_dir, "save_backups"), os.path.join(data_dir, "save_backups"), label)
+            bk_ok = True
+        except OSError:
+            pass
+    all_ok = len(ok) == len(names) and (bk_ok or not has_bk)
+    if not all_ok:
+        return bool(ok or bk_ok)
+    try:
+        arch = _archive_dir(label)
+        if is_program_dir:  # only the data files: the program itself stays where it is
+            for n in ok:
+                shutil.move(os.path.join(src_dir, n), os.path.join(arch, n))
+            if has_bk:
+                shutil.move(os.path.join(src_dir, "save_backups"), os.path.join(arch, "save_backups"))
+        else:  # a pure data folder: move all of it, so that it disappears from its old place
+            shutil.rmtree(arch, ignore_errors=True)
+            shutil.move(src_dir, arch)
+    except (OSError, shutil.Error):
+        pass
+    return True
 
 
-def _recover_hidden_store_folder():
-    """Windows + Store Python: a previous version may have saved the files in the hidden private
-    AppData folder of the Store package (...\\Packages\\PythonSoftwareFoundation.Python.*\\LocalCache\\
-    Roaming\\EdenSaveEditor). Copy them to the normal data folder."""
-    la = os.environ.get("LOCALAPPDATA")
-    if os.name != "nt" or not la:
-        return
-    pat = os.path.join(la, "Packages", "PythonSoftwareFoundation.Python.*", "LocalCache", "Roaming",
-                       "EdenSaveEditor")
-    for d in glob.glob(pat):
-        _copy_missing(d)
+def _legacy_data_folders():
+    """(label, folder, is_program_folder) of every place an older version may have used."""
+    out = [("program_folder", BASE, True)]
+    if os.name == "nt":
+        home = os.path.expanduser("~")
+        ap = os.environ.get("APPDATA")
+        if ap:
+            out.append(("appdata_roaming", os.path.join(ap, "EdenSaveEditor"), False))
+        la = os.environ.get("LOCALAPPDATA")
+        if la:
+            pat = os.path.join(la, "Packages", "PythonSoftwareFoundation.Python.*", "LocalCache", "Roaming",
+                               "EdenSaveEditor")
+            for i, d in enumerate(sorted(glob.glob(pat))):
+                out.append((f"python_store_cache{i or ''}", d, False))
+        homes = [home, os.path.join(home, "OneDrive"), os.environ.get("OneDrive") or ""]
+        for h in homes:
+            for docs in ("Documents", "Documenti"):
+                if h:
+                    out.append(("documents", os.path.join(h, docs, "EdenSaveEditor"), False))
+    return out
 
 
-def _migrate_old_files():
-    """One time: COPY the files an older version kept next to the program into DATA_DIR (the
-    originals are left where they are). Nothing is overwritten: a file is copied only if it does
-    not exist yet in the new folder."""
+def _consolidate_data_folders():
     if os.path.abspath(DATA_DIR) == os.path.abspath(BASE):
         return
-    for name in ("saved_fields.json", "hash_names.json", "ui_settings.json"):
-        src, dst = os.path.join(BASE, name), os.path.join(DATA_DIR, name)
+    seen = {os.path.normcase(os.path.abspath(DATA_DIR))}
+    for label, d, is_prog in _legacy_data_folders():
+        key = os.path.normcase(os.path.abspath(d))
+        if key in seen or not os.path.isdir(d):
+            continue
+        seen.add(key)
+        # never touch the archive itself or a folder that contains the data folder
+        if os.path.normcase(os.path.abspath(DATA_DIR)).startswith(key + os.sep):
+            continue
         try:
-            if os.path.isfile(src) and not os.path.exists(dst):
-                shutil.copy2(src, dst)
-        except OSError:
-            pass
-    old_bk = os.path.join(BASE, "save_backups")
-    if os.path.isdir(old_bk):
-        try:
-            os.makedirs(BACKUP_DIR, exist_ok=True)
-            for n in os.listdir(old_bk):
-                src, dst = os.path.join(old_bk, n), os.path.join(BACKUP_DIR, n)
-                if os.path.isfile(src) and not os.path.exists(dst):
-                    shutil.copy2(src, dst)
-        except OSError:
-            pass
+            _consolidate_one(label, d, is_prog)
+        except Exception:
+            pass  # never block the start of the program because of this
 
 
-_migrate_old_files()
-_recover_hidden_store_folder()
+_consolidate_data_folders()
 PALETTES = {
     "dark": dict(bg="#12141a", surface="#1b1e27", surface2="#252a38", border="#2f3446",
                  text="#e8eaf0", muted="#8d95aa", accent="#7c5cff", accent_hi="#9680ff",
@@ -1219,7 +1320,7 @@ def _choose_exe(members):
 
 
 def check_new_script(data, tag):
-    """Refuse a download that is not a sane, newer Eden Save Editor (nothing is installed yet)."""
+    """Refuse a download that is not a sane, newer Eden-Based Save Editor (nothing is installed yet)."""
     try:
         text = data.decode("utf-8-sig")
     except UnicodeDecodeError:
@@ -1229,7 +1330,7 @@ def check_new_script(data, tag):
     except SyntaxError as e:
         raise RuntimeError(f"The downloaded program is damaged (line {e.lineno}): update cancelled.")
     if "def gui(" not in text:
-        raise RuntimeError("The downloaded file is not Eden Save Editor: update cancelled.")
+        raise RuntimeError("The downloaded file is not Eden-Based Save Editor: update cancelled.")
     m = re.search(r'^APP_VERSION\s*=\s*["\']([^"\']+)["\']', text, re.M)
     if m and version_tuple(m.group(1)) < version_tuple(tag):
         raise RuntimeError(f"The release {tag} contains a program that says it is v{m.group(1)}, so it was not "
@@ -3067,7 +3168,7 @@ def gui():
     except Exception:
         pass
     root = tk.Tk()
-    root.title(f"Eden Save Editor v{APP_VERSION}")
+    root.title(f"Eden-Based Save Editor v{APP_VERSION}")
     set_app_icon(root)
     root.geometry("1080x680")
     autofit(root, 1080, 680)
@@ -3102,7 +3203,7 @@ def gui():
     tbox.pack(side="left")
     trow = ttk.Frame(tbox)
     trow.pack(anchor="w")
-    ttk.Label(trow, text="Eden Save Editor", style="Title.TLabel").pack(side="left")
+    ttk.Label(trow, text="Eden-Based Save Editor", style="Title.TLabel").pack(side="left")
     ttk.Label(trow, text=f"v{APP_VERSION}", style="Badge.TLabel").pack(side="left", padx=(10, 0), pady=(8, 0))
     ttk.Label(tbox, text="Edit your Switch saves safely: every change makes an automatic backup.",
               style="Sub.TLabel").pack(anchor="w")
@@ -3166,7 +3267,7 @@ def gui():
     status_bar.pack(side="bottom", fill="x")
     status_lbl = ttk.Label(status_bar, text="Ready.", style="Status.TLabel")
     status_lbl.pack(side="left")
-    ttk.Label(status_bar, text=f"Eden Save Editor v{APP_VERSION}", style="Status.TLabel").pack(side="right")
+    ttk.Label(status_bar, text=f"Eden-Based Save Editor v{APP_VERSION}", style="Status.TLabel").pack(side="right")
 
     def set_status(text, ok=True):
         status_lbl.config(text=text, foreground=pal()["ok"] if ok else pal()["danger"])
@@ -3194,7 +3295,7 @@ def gui():
         upd["win"] = d
         d.title("Update required")
         d.transient(root)
-        ttk.Label(d, text=f"Eden Save Editor {tag} is available", style="Section.TLabel").pack(
+        ttk.Label(d, text=f"Eden-Based Save Editor {tag} is available", style="Section.TLabel").pack(
             anchor="w", padx=16, pady=(14, 0))
         ttk.Label(d, text=f"You have v{APP_VERSION}. This update is required to keep using the program.\n"
                           f"What's new:", style="Muted.TLabel", justify="left").pack(
